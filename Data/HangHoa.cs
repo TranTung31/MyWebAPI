@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -24,5 +25,12 @@ namespace MyWebAPI.Data
         public int? MaLoai { get; set; }
         [ForeignKey("MaLoai")]
         public Loai Loai { get; set; }
+        public ICollection<DonHangChiTiet> DonHangChiTiets { get; set; }
+
+        public HangHoa()
+        {
+            // Trường hợp DonHangChiTiets null thì khởi tạo list rỗng
+            DonHangChiTiets = new HashSet<DonHangChiTiet>();
+        }
     }
 }
