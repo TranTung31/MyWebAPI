@@ -21,8 +21,15 @@ namespace MyWebAPI.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var loais = _context.Loai.ToList();
-            return Ok(loais);
+            try
+            {
+                var loais = _context.Loai.ToList();
+                return Ok(loais);
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}")]
@@ -53,7 +60,7 @@ namespace MyWebAPI.Controllers
             };
             _context.Loai.Add(loai);
             _context.SaveChanges();
-            return Ok(new
+            return StatusCode(StatusCodes.Status201Created, new
             {
                 status = "OK",
                 message = "Create successfully!",
