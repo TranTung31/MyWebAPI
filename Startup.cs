@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MyWebAPI.Data;
+using MyWebAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,9 @@ namespace MyWebAPI
             {
                 option.UseSqlServer(Configuration.GetConnectionString("MyDB"));
             });
+
+            services.AddScoped<ILoaiRepository, LoaiRepository>();
+            //services.AddScoped<ILoaiRepository, LoaiRepositoryInMemory>();
 
             services.AddSwaggerGen(c =>
             {
