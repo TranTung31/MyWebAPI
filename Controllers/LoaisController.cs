@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyWebAPI.Models;
 using MyWebAPI.Services;
 
 namespace MyWebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class LoaisController : ControllerBase
     {
@@ -49,6 +50,7 @@ namespace MyWebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Create(LoaiModel loai)
         {
             try
