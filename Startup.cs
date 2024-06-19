@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -7,12 +8,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MyWebAPI.Data;
+using MyWebAPI.Models;
 using MyWebAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MyWebAPI
@@ -37,9 +41,32 @@ namespace MyWebAPI
                 option.UseSqlServer(Configuration.GetConnectionString("MyDB"));
             });
 
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+
+            // Add Interfaces
+            services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<ILoaiRepository, LoaiRepository>();
             //services.AddScoped<ILoaiRepository, LoaiRepositoryInMemory>();
             services.AddScoped<IHangHoaRepository, HangHoaRepository>();
+
+            var secretKey = Configuration["AppSettings:SecretKey"];
+            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey); // Convert string secretKey to bytes
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(opt =>
+                {
+                    opt.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        // Tự cấp token
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+
+                        // Ký vào token
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
 
             services.AddSwaggerGen(c =>
             {
@@ -60,6 +87,8 @@ namespace MyWebAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

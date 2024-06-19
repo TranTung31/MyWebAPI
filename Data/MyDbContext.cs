@@ -14,6 +14,7 @@ namespace MyWebAPI.Data
         // Fluent API
         public DbSet<DonHang> DonHangs { get; set; }
         public DbSet<DonHangChiTiet> DonHangChiTiets { get; set; }
+        public DbSet<NguoiDung> NguoiDungs { get; set; }
         #endregion
 
         // Override method OnModelCreating for config Fluent API
@@ -41,6 +42,17 @@ namespace MyWebAPI.Data
                     .WithMany(e => e.DonHangChiTiets)
                     .HasForeignKey(e => e.MaHh)
                     .HasConstraintName("FK_DonHangCT_HangHoa");
+            });
+
+            modelBuilder.Entity<NguoiDung>(entity =>
+            {
+                entity.ToTable("NguoiDung");
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.UserName).IsUnique();
+                entity.Property(e => e.UserName).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Password).IsRequired().HasMaxLength(250);
+                entity.Property(e => e.HoTen).IsRequired().HasMaxLength(150);
+                entity.Property(e => e.Email).IsRequired().HasMaxLength(150);
             });
         }
     }
