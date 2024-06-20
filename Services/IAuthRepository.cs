@@ -4,6 +4,7 @@ namespace MyWebAPI.Services
 {
     public interface IAuthRepository
     {
-        AuthResponseModel SignIn(LoginModel loginModel);
+        ApiResponseModel SignIn(LoginModel loginModel);
+        ApiResponseModel RefreshToken(TokenModel tokenModel);
     }
 }

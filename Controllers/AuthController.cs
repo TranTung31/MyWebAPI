@@ -27,5 +27,18 @@ namespace MyWebAPI.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
+
+        [HttpPost("RefreshToken")]
+        public IActionResult RefreshToken(TokenModel tokenModel)
+        {
+            try
+            {
+                return StatusCode(StatusCodes.Status200OK, _authRepository.RefreshToken(tokenModel));
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
     }
 }

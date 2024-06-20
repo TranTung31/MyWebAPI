@@ -1,6 +1,6 @@
 ﻿namespace MyWebAPI.Models
 {
-    public class AuthResponseModel
+    public class ApiResponseModel
     {
         public bool IsSuccess { get; set; }
         public string Message { get; set; }
