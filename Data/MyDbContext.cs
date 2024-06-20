@@ -10,6 +10,7 @@ namespace MyWebAPI.Data
         // Annotation
         public DbSet<HangHoa> HangHoa { get; set; }
         public DbSet<Loai> Loai { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         // Fluent API
         public DbSet<DonHang> DonHangs { get; set; }
