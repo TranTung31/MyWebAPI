@@ -1,21 +1,20 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MyWebAPI.Data;
 using MyWebAPI.Models;
-using System;
-using System.Linq;
+using MyWebAPI.Services;
 
 namespace MyWebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class LoaiController : ControllerBase
     {
-        private readonly MyDbContext _context;
+        private readonly ILoaiRepository _loaiRepository;
 
-        public LoaiController(MyDbContext context)
+        public LoaiController(ILoaiRepository loaiRepository)
         {
-            _context = context;
+            _loaiRepository = loaiRepository;
         }
 
         [HttpGet]
@@ -23,12 +22,10 @@ namespace MyWebAPI.Controllers
         {
             try
             {
-                var loais = _context.Loai.ToList();
-                return Ok(loais);
-            }
-            catch
+                return Ok(_loaiRepository.GetAll());
+            } catch
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
@@ -37,58 +34,45 @@ namespace MyWebAPI.Controllers
         {
             try
             {
-                var loai = _context.Loai.SingleOrDefault(x => x.MaLoai == id);
-                if (loai == null)
+                var result = _loaiRepository.GetById(id);
+                if (result == null)
                 {
                     return NotFound();
+                } else
+                {
+                    return Ok(result);
                 }
-                return Ok(loai);
             }
             catch
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
-
         }
 
         [HttpPost]
-        public IActionResult Create(LoaiModel loaiModel)
-        {
-            var loai = new Loai
-            {
-                TenLoai = loaiModel.TenLoai
-            };
-            _context.Loai.Add(loai);
-            _context.SaveChanges();
-            return StatusCode(StatusCodes.Status201Created, new
-            {
-                status = "OK",
-                message = "Create successfully!",
-                data = loai
-            });
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, LoaiModel loaiModel)
+        [Authorize]
+        public IActionResult Create(LoaiModel loai)
         {
             try
             {
-                var loai = _context.Loai.SingleOrDefault(x => x.MaLoai == id);
-                if (loai == null)
-                {
-                    return NotFound();
-                }
-                loai.TenLoai = loaiModel.TenLoai;
-                _context.SaveChanges();
-                return Ok(new
-                {
-                    status = "OK",
-                    message = "Update successfully!"
-                });
+                return Ok(_loaiRepository.Create(loai));
             }
             catch
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, LoaiVM loai)
+        {
+            try
+            {
+                _loaiRepository.Put(loai);
+                return NoContent();
+            } catch
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
@@ -97,22 +81,12 @@ namespace MyWebAPI.Controllers
         {
             try
             {
-                var loai = _context.Loai.SingleOrDefault(x => x.MaLoai == id);
-                if (loai == null)
-                {
-                    return NotFound();
-                }
-                _context.Loai.Remove(loai);
-                _context.SaveChanges();
-                return Ok(new
-                {
-                    status = "OK",
-                    message = "Delete successfully!"
-                });
+                _loaiRepository.Delete(id);
+                return NoContent();
             }
             catch
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
     }

@@ -1,22 +1,32 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyWebAPI.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using MyWebAPI.Services;
 
 namespace MyWebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class HangHoaController : ControllerBase
     {
-        public static List<HangHoa> hangHoas = new List<HangHoa>();
+        private readonly IHangHoaRepository _hangHoaRepository;
+        public HangHoaController(IHangHoaRepository hangHoaRepository)
+        {
+            _hangHoaRepository = hangHoaRepository;
+        }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll(string search, double from, double to, string sortBy, int page = 1)
         {
-            return Ok(hangHoas);
+            try
+            {
+                var result = _hangHoaRepository.GetAll(search, from, to, sortBy, page);
+                return StatusCode(StatusCodes.Status200OK, result);
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
         }
 
         [HttpGet("{id}")]
@@ -24,81 +34,54 @@ namespace MyWebAPI.Controllers
         {
             try
             {
-                // LINQ [Object] Query
-                var hangHoa = hangHoas.SingleOrDefault(hh => hh.MaHangHoa == Guid.Parse(id));
-                if (hangHoa == null)
-                {
-                    return NotFound();
-                }
-                return Ok(hangHoa);
+                var result = _hangHoaRepository.GetById(id);
+                return StatusCode(StatusCodes.Status200OK, result);
             }
             catch
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
         [HttpPost]
-        public IActionResult Create(HangHoaVM hangHoaVM)
-        {
-            var newHangHoa = new HangHoa()
-            {
-                MaHangHoa = Guid.NewGuid(),
-                TenHangHoa = hangHoaVM.TenHangHoa,
-                DonGia = hangHoaVM.DonGia
-            };
-
-            hangHoas.Add(newHangHoa);
-
-            return Ok(new
-            {
-                status = "OK",
-                message = "Create new successfully!",
-                data = newHangHoa
-            });
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult Edit(string id, HangHoaVM hangHoaEdit)
+        public IActionResult Create(HangHoaInputModel hangHoa)
         {
             try
             {
-                var hangHoa = hangHoas.SingleOrDefault(hh => hh.MaHangHoa == Guid.Parse(id));
-                if (hangHoa == null)
-                {
-                    return NotFound();
-                }
-                hangHoa.TenHangHoa = hangHoaEdit.TenHangHoa;
-                hangHoa.DonGia = hangHoaEdit.DonGia;
-                return Ok(hangHoa);
+                var result = _hangHoaRepository.Create(hangHoa);
+                return StatusCode(StatusCodes.Status200OK, result);
             }
             catch
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(string id, HangHoaInputModel hangHoa)
+        {
+            try
+            {
+                var result = _hangHoaRepository.Update(id, hangHoa);
+                return StatusCode(StatusCodes.Status200OK, result);
+            }
+            catch
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Remove(string id)
+        public IActionResult Delete(string id)
         {
             try
             {
-                var hangHoa = hangHoas.SingleOrDefault(hh => hh.MaHangHoa == Guid.Parse(id));
-                if (hangHoa == null)
-                {
-                    return NotFound();
-                }
-
-                hangHoas.Remove(hangHoa);
-                return Ok(new
-                {
-                    status = "OK",
-                    message = "Delete successfully!"
-                });
+                var result = _hangHoaRepository.Delete(id);
+                return StatusCode(StatusCodes.Status200OK, result);
             }
             catch
             {
-                return BadRequest();
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
     }
